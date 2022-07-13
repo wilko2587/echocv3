@@ -1,6 +1,6 @@
 from __future__ import division, print_function, absolute_import
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import random
 import sys
 import cv2
@@ -19,6 +19,9 @@ from optparse import OptionParser
 from echoanalysis_tools import output_imgdict
 
 import vgg as network
+
+tf.disable_eager_execution()
+
 
 # # Hyperparams
 parser = OptionParser()
@@ -214,15 +217,13 @@ def main(dicomdir = "/Users/jameswilkinson/Documents/FeinbergData/2022-05-22/dic
             out.loc[len(out) + 1] = fulldata_list
 
         _dicompathtemp = os.path.normpath(dicomdir)
-        output_file_name = '_'.join(_dicompathtemp.split(os.sep)[-2:])
+        output_file_name = 'results_' + '_'.join(_dicompathtemp.split(os.sep)[-2:]) + '.csv'
         print("Predictions for {} with {} \n {}".format(dicomdir, model_name, out))
-        out.rename(output_file_name, inplace=True)
-        out.to_csv(index=False)
+        out.to_csv(output_file_name, index=False)
 
         # 4) empty the tmp directory of jpgs
-        for jpg in os.listdir(temp_image_directory):
-            filepath = os.path.join(temp_image_directory, jpg)
-            rmtree(filepath)
+        for f in os.listdir(temp_image_directory):
+            os.remove(os.path.join(temp_image_directory, f))
 
     y = time.time()
     print("time:  " + str(y - x) + " seconds for " + str(len(predictprobdict.keys())) + " videos")
@@ -235,5 +236,4 @@ if __name__ == '__main__':
     # batch_size limits the number of dicoms that are processed in one go. This can help out if a directory has hundreds
     #    of dicoms, which could take days to process. batch_size means the code will write and save a user-accessible
     #    output on-the-fly, processing in smaller batches as it goes.
-    main(dicomdir="/Users/jameswilkinson/Documents/FeinbergData/2022-05-22/dicoms/",
-        batch_size=10)
+    main(dicomdir="./dicomsample/", batch_size=1)

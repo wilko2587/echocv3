@@ -1,5 +1,6 @@
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+import tensorflow as tf2
 import sys
 
 sys.path.append('../funcs/')
@@ -102,9 +103,9 @@ class Network(object):
             pool_5 = pool_(conv_5_3)
             if self.maxout:
                 max_5 = max_out_(pool_5)
-                flattened = tf.contrib.layers.flatten(max_5)
+                flattened = tf2.keras.layers.Flatten()(max_5)
             else:
-                flattened = tf.contrib.layers.flatten(pool_5)
+                flattened = tf2.keras.layers.Flatten()(pool_5)
             
             fc_6 = nn.dropout(fc_(flattened, 4096, 'fc6'), keep_prob)
             fc_7 = nn.dropout(fc_(fc_6, 4096, 'fc7'), keep_prob)
